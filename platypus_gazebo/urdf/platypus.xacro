@@ -1,0 +1,290 @@
+<?xml version='1.0'?>
+
+<robot name="platypus" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="gpu" default="false"/>
+  <xacro:property name="gpu" value="$(arg gpu)" />
+
+  <xacro:include filename="$(find platypus_gazebo)/urdf/platypus.gazebo" />
+
+  <!-- Length along X-axis, Width along Y-axis, Height along Z-axis -->
+  <xacro:property name="board_width" value="${0.582}" />
+  <xacro:property name="board_length" value="${1.659}" />
+  <xacro:property name="board_height" value="${0.07}" />
+  <xacro:property name="board_mass" value="${5}" />
+
+  <xacro:property name="base_x_offset" value="0" />
+
+  <!-- inertia = 1/12*m(h^2+d^2) -->
+  <xacro:property name="height_2" value="${board_height * board_height}" />
+  <xacro:property name="width_2" value="${board_width * board_width}" />
+  <xacro:property name="length_2" value="${board_length * board_length}" />
+  <xacro:property name="board_inertia_xx" value="${board_mass/12.0 * (height_2 + width_2)}" />
+  <xacro:property name="board_inertia_yy" value="${board_mass/12.0 * (height_2 + length_2)}" />
+  <xacro:property name="board_inertia_zz" value="${board_mass/12.0 * (width_2 + length_2)}" />
+  <xacro:property name="board_i_x_pos" value="${base_x_offset}" />
+  <xacro:property name="board_i_z_pos" value="${board_height/3.0}" />
+
+  <xacro:property name="wheel_length" value="${0.02}" />
+  <xacro:property name="wheel_radius" value="${0.025}" />
+  <xacro:property name="wheel_mass" value="${1}" />
+  <xacro:property name="wheel_inertia" value="${1e-3}" />
+  <xacro:property name="wheel_x_offset" value="${0.25}" />
+  <xacro:property name="wheel_y_offset" value="${0.25}" />
+  <xacro:property name="wheel_z_offset" value="${1.055}" />
+
+  <xacro:property name="wheel_kp" value="10000.0" />
+  <xacro:property name="wheel_kd" value="10.0" />
+  <xacro:property name="wheel_mu1" value="1" />
+  <xacro:property name="wheel_mu2" value="1" />
+  <xacro:property name="wheel_slip1" value="0.2" />
+  <xacro:property name="wheel_slip2" value="0" />
+
+
+ <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link" />
+    <origin xyz="0 0 ${wheel_radius+wheel_z_offset}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://platypus_gazebo/meshes/board.stl" scale="1 1 1"/>
+      </geometry>
+    </visual>
+
+    <visual>
+      <origin xyz="0 0 -${board_height/2+(wheel_z_offset-(board_height/2))/2}" rpy="0 0 0"/>
+      <geometry>
+        <box size="${2*wheel_x_offset} ${2*wheel_y_offset} ${wheel_z_offset-(board_height/2)}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://platypus_gazebo/meshes/board.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="${board_mass}"/>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
+      <inertia
+          ixx="${board_inertia_xx}" ixy="0" ixz="0"
+          iyy="${board_inertia_yy}" iyz="0"
+          izz="${board_inertia_zz}" />
+    </inertial>
+  </link>
+
+  <!-- left back wheel -->
+  <joint type="continuous" name="left_back_wheel_hinge">
+    <origin xyz="-${wheel_x_offset} ${wheel_y_offset+wheel_length/2} ${-wheel_z_offset}" rpy="0 0 0"/>
+    <child link="left_back_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name="left_back_wheel">
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <inertia
+        ixx="${wheel_inertia}" ixy="0" ixz="0"
+        iyy="${wheel_inertia}" iyz="0"
+        izz="${wheel_inertia}" />
+    </inertial>
+    <collision name="left_back_wheel_collision">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <fdir1>1 0 0</fdir1>
+          <kp>${wheel_kp}</kp> <!-- kp and kd for rubber -->
+          <kd>${wheel_kd}</kd>
+          <mu>${wheel_mu1}</mu>
+          <mu2>${wheel_mu2}</mu2>
+          <slip1>${wheel_slip1}</slip1>
+          <slip2>${wheel_slip2}</slip2>
+        </friction>
+      </surface>
+    </collision>
+    <visual name="left_back_wheel_visual">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- right back wheel -->
+  <joint type="continuous" name="right_back_wheel_hinge">
+    <origin xyz="-${wheel_x_offset} -${wheel_y_offset+wheel_length/2} ${-wheel_z_offset}" rpy="0 0 0"/>
+    <child link="right_back_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name="right_back_wheel">
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <inertia
+          ixx="${wheel_inertia}" ixy="0" ixz="0"
+          iyy="${wheel_inertia}" iyz="0"
+          izz="${wheel_inertia}" />
+    </inertial>
+    <collision name="right_back_wheel_collision">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <fdir1>1 0 0</fdir1>
+          <kp>${wheel_kp}</kp> <!-- kp and kd for rubber -->
+          <kd>${wheel_kd}</kd>
+          <mu>${wheel_mu1}</mu>
+          <mu2>${wheel_mu2}</mu2>
+          <slip1>${wheel_slip1}</slip1>
+          <slip2>${wheel_slip2}</slip2>
+        </friction>
+      </surface>
+    </collision>
+    <visual name="right_back_wheel_visual">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- left front wheel -->
+  <joint type="continuous" name="left_front_wheel_hinge">
+    <origin xyz="${wheel_x_offset} ${wheel_y_offset+wheel_length/2} ${-wheel_z_offset}" rpy="0 0 0"/>
+    <child link="left_front_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name="left_front_wheel">
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <inertia
+        ixx="${wheel_inertia}" ixy="0" ixz="0"
+        iyy="${wheel_inertia}" iyz="0"
+        izz="${wheel_inertia}" />
+    </inertial>
+    <collision name="left_front_wheel_collision">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <fdir1>1 0 0</fdir1>
+          <kp>${wheel_kp}</kp> <!-- kp and kd for rubber -->
+          <kd>${wheel_kd}</kd>
+          <mu>${wheel_mu1}</mu>
+          <mu2>${wheel_mu2}</mu2>
+          <slip1>${wheel_slip1}</slip1>
+          <slip2>${wheel_slip2}</slip2>
+        </friction>
+      </surface>
+    </collision>
+    <visual name="left_front_wheel_visual">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- right front wheel -->
+  <joint type="continuous" name="right_front_wheel_hinge">
+    <origin xyz="${wheel_x_offset} -${wheel_y_offset+wheel_length/2} ${-wheel_z_offset}" rpy="0 0 0"/>
+    <child link="right_front_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name="right_front_wheel">
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0.0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <inertia
+          ixx="${wheel_inertia}" ixy="0" ixz="0"
+          iyy="${wheel_inertia}" iyz="0"
+          izz="${wheel_inertia}" />
+    </inertial>
+    <collision name="right_front_wheel_collision">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <fdir1>1 0 0</fdir1>
+          <kp>${wheel_kp}</kp> <!-- kp and kd for rubber -->
+          <kd>${wheel_kd}</kd>
+          <mu>${wheel_mu1}</mu>
+          <mu2>${wheel_mu2}</mu2>
+          <slip1>${wheel_slip1}</slip1>
+          <slip2>${wheel_slip2}</slip2>
+        </friction>
+      </surface>
+    </collision>
+    <visual name="right_front_wheel_visual">
+      <origin xyz="0 0 0" rpy=" 0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="base_to_board" type="fixed">
+    <parent link="base_link"/>
+    <child link="board" />
+    <origin xyz="0 0 ${board_height/2}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="board"/>
+
+  <joint name="board_to_lidar_base" type="fixed">
+    <parent link="board"/>
+    <child link="lidar_base" />
+    <origin xyz="0.2 0 0" rpy="0 0 0"/>
+
+  </joint>
+
+  <link name="lidar_base">
+    <visual>
+      <origin xyz="0 0 0.088" rpy=" 0 0 0"/>
+      <geometry>
+        <cylinder length="0.176" radius="0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
+  <xacro:VLP-16 parent="lidar_base" name="velodyne" topic="/velodyne_points" hz="10" samples="440" gpu="${gpu}">
+    <origin xyz="0 0 0.176" rpy="0 0 0" />
+  </xacro:VLP-16>
+
+
+</robot>
