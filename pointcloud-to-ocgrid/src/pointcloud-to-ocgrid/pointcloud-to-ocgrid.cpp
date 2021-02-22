@@ -3,6 +3,6 @@
  * Implementation file containing PointcloudToOcgridCoverter Class
  */
 
-#include "pointcloud-to-ocgrid/pointcloud-to-ocgrid-converter.hpp"
+#include "pointcloud-to-ocgrid/pointcloud-to-ocgrid.hpp"
 
 

@@ -48,7 +48,7 @@ include_directories(
 
 ## Library 
 add_library(${PROJECT_NAME}
-  src/${PROJECT_NAME}/pointcloud-to-ocgrid-converter.cpp
+  src/${PROJECT_NAME}/pointcloud-to-ocgrid.cpp
 )
 ## Library Dependencies
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

@@ -1,4 +1,4 @@
-/** @pointcloud-to-ocgrid-converter.hpp
+/** @pointcloud-to-ocgrid.hpp
  *
  * Header file containing PointcloudToOcgridCoverter Class
  */
@@ -24,8 +24,7 @@ typedef pcl::PointCloud<PointType> PointCloud;
  *
  */
 
-class PointcloudToOcgridConverter {
-    public:
+namespace PointcloudToOcgrid {
     /**
      * Coverts point cloud to occupancy grid map
      * 
@@ -37,10 +36,7 @@ class PointcloudToOcgridConverter {
      * @param[out] ocgridPtr Pointer for output pointcloud, also used for MapMetaData
      * @param[out] success indicator of whether process was successful
     */
-    bool pointcloudToGrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid::Ptr ocgridPtr);
-
-    private:
-
-};
+    bool convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid::Ptr ocgridPtr);
+}
 
 
