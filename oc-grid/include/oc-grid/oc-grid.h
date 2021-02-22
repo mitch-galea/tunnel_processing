@@ -1,3 +1,5 @@
+//TODO DOCUMENTATION
+
 #ifndef OCGRID_H
 #define OCGRID_H
 
@@ -8,7 +10,6 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <yaml-cpp/yaml.h>
-#include <geometry_msgs/Pose.h>
 #include <ros/ros.h>
 #include <queue>
 #include <set>
@@ -53,12 +54,12 @@ public:
     // returns index to right cell or -1 if none
     int rightIndex(int index);
 
-    // transforms grid position to map pose
-    geometry_msgs::Pose gridToPose(int index);
-    // transforms grid position to map pose using col and row
-    geometry_msgs::Pose gridToPose(int col, int row);
-    // transforms pose to grid position
-    int poseToGrid(geometry_msgs::Pose p);
+    // transforms grid index to map pose
+    double indexToX(int index);
+    // transforms grid index to map pose using col and row
+    double indexToY(int index);
+    // transforms pos to grid index
+    int posToIndex(double x, double y);
 
 
 };

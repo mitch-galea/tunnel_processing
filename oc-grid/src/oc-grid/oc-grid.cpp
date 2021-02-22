@@ -1,3 +1,5 @@
+//TODO DOCUMENTATION
+
 #include "oc-grid/oc-grid.h"
 
 OcGrid::OcGrid(nav_msgs::OccupancyGrid oc_grid_in): oc_grid(oc_grid_in)
@@ -97,7 +99,6 @@ bool OcGrid::inGrid(int row, int col) {
     return row >= 0 && row < oc_grid.info.height && col >= 0 && col < oc_grid.info.width;
 }
 
-
 int OcGrid::indexFromRowCol(int row, int col) {
     return row*oc_grid.info.width + col;
 }
@@ -130,18 +131,18 @@ std::vector<int> OcGrid::getNeighbours(int index, bool diagonal) {
     return neighbours;
 }
 
-//TODO fill in below functions
-
-geometry_msgs::Pose OcGrid::gridToPose(int index) {
-    return geometry_msgs::Pose();
+double OcGrid::indexToX(int index) {
+    return oc_grid.info.origin.position.x + (0.5 + static_cast<double>(colFromIndex(index)))*oc_grid.info.resolution;
 }
 
-geometry_msgs::Pose OcGrid::gridToPose(int col, int row) {
-    return geometry_msgs::Pose();
+double OcGrid::indexToY(int index) {
+    return oc_grid.info.origin.position.y + (0.5 + static_cast<double>(rowFromIndex(index)))*oc_grid.info.resolution;
 }
 
-int OcGrid::poseToGrid(geometry_msgs::Pose p) {
-    return 0;
+int OcGrid::posToIndex(double x, double y) {
+    int row = std::floor((x-oc_grid.info.origin.position.x)/oc_grid.info.resolution);
+    int col = std::floor((y-oc_grid.info.origin.position.y)/oc_grid.info.resolution);
+    return indexFromRowCol(row, col);
 }
 
 bool OcGrid::neighbours(int cell_1, int cell_2, bool diagonal) {
