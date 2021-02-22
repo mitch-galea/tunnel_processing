@@ -7,7 +7,7 @@
 
 #include <ros/ros.h>
 
-#include "pointcloud-to-ocgrid/pointcloud-to-ocgrid-converter.hpp"
+#include "pointcloud-to-ocgrid/pointcloud-to-ocgrid.hpp"
 
 class PointcloudToOcgridNode
 {

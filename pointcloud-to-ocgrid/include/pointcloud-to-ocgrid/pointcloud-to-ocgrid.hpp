@@ -1,6 +1,6 @@
 /** @pointcloud-to-ocgrid.hpp
  *
- * Header file containing PointcloudToOcgridCoverter Class
+ * Header file containing convertPointcloudToOcgridCoverter function
  */
 
 #pragma once
