@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2
   tf2_ros
+  oc-grid
 )
 
 find_package(PCL 1.7 REQUIRED)
@@ -37,6 +38,13 @@ find_package(PCL 1.7 REQUIRED)
 #   cfg/DynReconf2.cfg
 # )
 
+###################################
+## catkin specific configuration ##
+###################################
+catkin_package(
+  INCLUDE_DIRS include
+)
+
 ###########
 ## Build ##
 ###########
@@ -52,12 +60,6 @@ add_library(${PROJECT_NAME}
 )
 ## Library Dependencies
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-# ## Library Linking
-# target_link_libraries(${PROJECT_NAME}
-#   ${catkin_LIBRARIES}
-#   ${PCL_LIBRARIES}
-# )
 
 ## Node Executable
 add_executable(${PROJECT_NAME}-node src/pointcloud-to-ocgrid-node.cpp)
@@ -76,22 +78,7 @@ target_link_libraries(${PROJECT_NAME}-node
 ## Testing ##
 #############
 
-# if(CATKIN_ENABLE_TESTING)
-#   find_package(rostest REQUIRED)
-
-#   add_rostest_gtest(
-#     pointcloud-to-ocgrid-test
-#     test/pointcloud-to-ocgrid-test.cpp
-#   )
-#   target_link_libraries(
-#     pointcloud-to-ocgrid-test
-#     ${PROJECT_NAME}
-#     ${catkin_LIBRARIES}
-#   )
-#   add_dependencies(
-#     pointcloud-to-ocgrid-test
-#     ${catkin_EXPORTED_TARGETS}
-#   )
-# endif()
+catkin_add_gtest(${PROJECT_NAME}-test test/pointcloud-to-ocgrid-test.cpp)
+target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 

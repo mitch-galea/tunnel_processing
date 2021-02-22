@@ -54,6 +54,7 @@ TEST(TESTSuite, PointcloudToOcgridTest)
     ocgrid->info.resolution = 0.25;
     ocgrid->info.origin.position.x = -0.5;
     ocgrid->info.origin.position.y = -1.0;
+    ocgrid->data.resize(ocgrid->info.width*ocgrid->info.height);
 
     /// Declares converter object and converts pointcloud to ocgrid
     PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid);

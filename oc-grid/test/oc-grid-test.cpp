@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <oc_grid/oc_grid.h>
+#include <oc-grid/oc-grid.h>
 #include <ros/package.h>
 #include <iostream>
 
@@ -52,114 +52,6 @@ TEST(OcGrid, ImageExport)
             ASSERT_EQ(image.at<cv::Vec3b>(row, col)[2], correct_image[row*image.cols + col][2]);
         }
     }
-}
-
-TEST(OcGrid, unknownToOccupied)
-{
-
-    std::string path = ros::package::getPath("oc_grid");
-    path.append("/maps/small_test.yaml");
-    OcGrid map(path);
-    map.unknownToOccupied();
-
-    std::vector<int> correct_data = {0,0,0,
-                                     100,100,100,
-                                     100,100,100};
-
-    for(unsigned i = 0; i < map.oc_grid.data.size(); i++) ASSERT_EQ(static_cast<int>(map.oc_grid.data[i]), correct_data[i]);
-}
-
-TEST(OcGrid, gradientInflat)
-{
-
-    std::string path = ros::package::getPath("oc_grid");
-    path.append("/maps/turn_test.yaml");
-    OcGrid map(path);
-    map.unknownToOccupied();
-    map.gradientInflate(true);
-
-    std::vector<int> correct_data = {100,100,100,100,100,100,75,50,25,0,
-                                     100,100,100,100,100,75,75,50,25,0,
-                                     75,75,75,75,75,75,50,50,25,0,
-                                     50,50,50,50,50,50,50,25,25,25,
-                                     25,25,25,25,25,25,25,50,50,50,
-                                     25,25,25,25,25,25,50,50,75,75,
-                                     50,50,50,50,50,50,50,75,75,100,
-                                     75,75,75,75,75,75,75,75,100,100,
-                                     100,100,100,100,100,100,100,100,100,100,
-                                     100,100,100,100,100,100,100,100,100,100};
-
-    for(unsigned i = 0; i < map.gradient_grid.size(); i++) ASSERT_EQ(static_cast<int>(map.gradient_grid[i]), correct_data[i]);
-
-    map.gradientInflate(false);
-
-    correct_data = {100,100,100,100,100,100,80,60,40,20,
-                    100,100,100,100,100,80,60,40,20,0,
-                    80,80,80,80,80,60,40,20,0,20,
-                    60,60,60,60,60,40,20,0,20,40,
-                    40,40,40,40,40,20,20,20,40,60,
-                    40,40,40,40,40,40,40,40,60,80,
-                    60,60,60,60,60,60,60,60,80,100,
-                    80,80,80,80,80,80,80,80,100,100,
-                    100,100,100,100,100,100,100,100,100,100,
-                    100,100,100,100,100,100,100,100,100,100};
-    for(unsigned i = 0; i < map.gradient_grid.size(); i++) ASSERT_EQ(static_cast<int>(map.gradient_grid[i]), correct_data[i]);
-}
-
-TEST(OcGrid, cluster)
-{
-    std::string path = ros::package::getPath("oc_grid");
-    path.append("/maps/turn_test.yaml");
-    OcGrid map(path);
-    map.unknownToOccupied();
-    map.clusterOccupied();
-
-    std::vector<int> correct_data = {1,1,1,1,1,1 ,0  ,0  ,0  ,0  ,
-                                     1,1,1,1,1,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,2,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,2,2,
-                                     2,2,2,2,2,2,2,2,2,2,
-                                     2,2,2,2,2,2,2,2,2,2};
-
-    for(unsigned i = 0; i < map.cluster_grid.size(); i++) {
-        ASSERT_EQ(static_cast<int>(map.cluster_grid[i]), correct_data[i]);
-    }
-}
-
-TEST(OcGrid, path)
-{
-    std::string path = ros::package::getPath("oc_grid");
-    path.append("/maps/multiple_path_test.yaml");
-    OcGrid map(path);
-    std::vector<int> map_path, end_points;
-    map.unknownToOccupied();
-    map.clusterOccupied();
-    map.inflate(true, true);
-    map.oc_grid.data = map.inflated_grid;
-
-
-    cv::Mat im;
-    map.exportMapImage(im);
-    std::string path2 = ros::package::getPath("oc_grid");
-    path2.append("/im.png");
-    cv::imwrite(path2, im);
-
-    std::vector<int> correct_data = {1,1,1,1,1,1 ,0  ,0  ,0  ,0  ,
-                                     1,1,1,1,1,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,2,
-                                     0  ,0  ,0  ,0  ,0  ,0  ,0  ,0  ,2,2,
-                                     2,2,2,2,2,2,2,2,2,2,
-                                     2,2,2,2,2,2,2,2,2,2};
-
-    ASSERT_EQ(1,1);
 }
 
 TEST(OcGrid, inGrid) {

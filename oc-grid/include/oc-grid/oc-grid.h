@@ -20,31 +20,15 @@ private:
 public:
     // occupancy grid msg - data
     nav_msgs::OccupancyGrid oc_grid;
-    // grid to store gradient grid
-    std::vector<int8_t> gradient_grid;
-    // grid to store cluster grid
-    std::vector<int8_t> cluster_grid;
-    // grid to store inflated grid
-    std::vector<int8_t> inflated_grid;
 
     // constructor from ros msg
     explicit OcGrid(nav_msgs::OccupancyGrid oc_grid_in);
     // constructor that uses map server image loader function and yaml file
     explicit OcGrid(std::string map_file_path);
 
-    // turns unknown cells to occupied
-    void unknownToOccupied();
     // exports map image
-    void exportMapImage(cv::Mat &image, int mode=0);
-    // exports map image
-    void exportMapImage(cv::Mat &image, std::vector<int> grid_cells, std::vector<cv::Vec3b> colours, int mode=0);
-    // gradual inflates map
-    void gradientInflate(bool diagonal);
-    // cluster occupied
-    void clusterOccupied();
-    // inflates map till single width path
-    void inflate(bool d_inflate, bool d_path);
-    // returns vector of outer cell indexs order starting with bottom-left cell and counterclockwise
+    void exportMapImage(cv::Mat &image);
+    // returns outer indexs of map
     std::vector<int> getOuterIndexs();
 
     // returns whether cell is in grid
@@ -74,7 +58,7 @@ public:
     // transforms grid position to map pose using col and row
     geometry_msgs::Pose gridToPose(int col, int row);
     // transforms pose to grid position
-    int poseToGrid(geometry_msgs::Pose);
+    int poseToGrid(geometry_msgs::Pose p);
 
 
 };

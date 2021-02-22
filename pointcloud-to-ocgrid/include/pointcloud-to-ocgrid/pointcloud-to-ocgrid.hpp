@@ -8,6 +8,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include "oc-grid/oc-grid.h"
 
 /**
  * In this implementation only PXYZI point types (I being intensity) are supported, 
