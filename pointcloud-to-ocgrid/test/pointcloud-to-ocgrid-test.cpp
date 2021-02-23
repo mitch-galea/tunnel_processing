@@ -2,6 +2,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <oc-grid/oc-grid.h>
 #include <vector>
 
 #include "pointcloud-to-ocgrid/pointcloud-to-ocgrid.hpp"
@@ -59,11 +60,15 @@ TEST(TESTSuite, PointcloudToOcgridTest)
     /// Declares converter object and converts pointcloud to ocgrid
     PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid);
 
+    std::string path = "/home/mitchellgalea/testim.png";
+
+    OcGrid o(ocgrid);
+
     // Expected output
     const unsigned U = 0, O = 100;
     std::vector<unsigned> expected_output = {O, U, O, O, O, O, O, O,
                                              U, U, O, O, U, O, O, U,
-                                             O, O, O, O, O, O, U, O,
+                                             U, U, U, U, U, U, O, U,
                                              U, U, O, U, U, U, U, U,
                                              U, O, U, U, U, U, U, O,
                                              U, U, U, U, U, O, U, U,

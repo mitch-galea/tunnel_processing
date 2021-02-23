@@ -2,10 +2,7 @@
 
 #include "oc-grid/oc-grid.h"
 
-OcGrid::OcGrid(nav_msgs::OccupancyGrid oc_grid_in): oc_grid(oc_grid_in)
-{}
-
-OcGrid::OcGrid(std::string map_file_path) {
+nav_msgs::OccupancyGrid OcGrid::generateOcgrid(std::string map_file_path) {
     std::string image_name;
     double resolution, occ_thresh, free_thresh;
     std::vector<double> origin_vec;
@@ -40,16 +37,19 @@ OcGrid::OcGrid(std::string map_file_path) {
         nav_msgs::GetMap::Response resp;
         map_server::loadMapFromFile(&resp, fname, resolution, negate, occ_thresh, free_thresh, origin);
 
-        oc_grid = resp.map;
+        return resp.map;
     }
 }
 
+OcGrid::OcGrid(nav_msgs::OccupancyGrid::Ptr oc_grid_ptr): ocgrid(oc_grid_ptr)
+{}
+
 void OcGrid::exportMapImage(cv::Mat &image) {
-    image.create(oc_grid.info.height, oc_grid.info.width, CV_8UC3);
-    for(unsigned row = 0; row < oc_grid.info.height; row++) {
-        for(unsigned col = 0; col < oc_grid.info.width; col++) {
+    image.create(ocgrid->info.height, ocgrid->info.width, CV_8UC3);
+    for(unsigned row = 0; row < ocgrid->info.height; row++) {
+        for(unsigned col = 0; col < ocgrid->info.width; col++) {
             cv::Vec3b value;
-            int val = static_cast<int>(oc_grid.data[row*oc_grid.info.width + col]);
+            int val = static_cast<int>(ocgrid->data[row*ocgrid->info.width + col]);
             if(val == -1) val = 127;
             else val = (100-val)*255/100;
 
@@ -57,7 +57,7 @@ void OcGrid::exportMapImage(cv::Mat &image) {
             value[1] = val;
             value[2] = val;
 
-            unsigned im_row = oc_grid.info.height - 1 - row;
+            unsigned im_row = ocgrid->info.height - 1 - row;
             image.at<cv::Vec3b>(im_row, col) = value;
         }
     }
@@ -68,23 +68,23 @@ std::vector<int> OcGrid::getOuterIndexs() {
     int i = 0;
     //bottom
     outer_indexs.push_back(i);
-    while(i < oc_grid.info.width - 1) {
+    while(i < ocgrid->info.width - 1) {
         i++;
         outer_indexs.push_back(i);
     }
     //right
-    while(i < oc_grid.info.width*oc_grid.info.height-1) {
-        i = i+oc_grid.info.width;
+    while(i < ocgrid->info.width*ocgrid->info.height-1) {
+        i = i+ocgrid->info.width;
         outer_indexs.push_back(i);
     }
     //top
-    while(i > oc_grid.info.width*(oc_grid.info.height-1)) {
+    while(i > ocgrid->info.width*(ocgrid->info.height-1)) {
         i--;
         outer_indexs.push_back(i);
     }
     //left
-    while(i > oc_grid.info.width) {
-        i = i-oc_grid.info.width;
+    while(i > ocgrid->info.width) {
+        i = i-ocgrid->info.width;
         outer_indexs.push_back(i);
     }
     return outer_indexs;
@@ -92,27 +92,27 @@ std::vector<int> OcGrid::getOuterIndexs() {
 
 
 bool OcGrid::inGrid(int index) {
-    return index >= 0 && index < oc_grid.data.size();
+    return index >= 0 && index < ocgrid->data.size();
 }
 
 bool OcGrid::inGrid(int row, int col) {
-    return row >= 0 && row < oc_grid.info.height && col >= 0 && col < oc_grid.info.width;
+    return row >= 0 && row < ocgrid->info.height && col >= 0 && col < ocgrid->info.width;
 }
 
 int OcGrid::indexFromRowCol(int row, int col) {
-    return row*oc_grid.info.width + col;
+    return row*ocgrid->info.width + col;
 }
 
 int OcGrid::rowFromIndex(int index) {
-    return floor(static_cast<double>(index)/ static_cast<double>(oc_grid.info.width));
+    return floor(static_cast<double>(index)/ static_cast<double>(ocgrid->info.width));
 }
 
 int OcGrid::colFromIndex(int index) {
-    return index % oc_grid.info.width;
+    return index % ocgrid->info.width;
 }
 
 std::vector<int> OcGrid::getNeighbours(int index, bool diagonal) {
-    if(index >= oc_grid.data.size()) ROS_ERROR("OcGrid getNeighbours: Index exceeds data");
+    if(index >= ocgrid->data.size()) ROS_ERROR("OcGrid getNeighbours: Index exceeds data");
     std::vector<int> neighbours;
     int row = rowFromIndex(index);
     int col = colFromIndex(index);
@@ -132,16 +132,16 @@ std::vector<int> OcGrid::getNeighbours(int index, bool diagonal) {
 }
 
 double OcGrid::indexToX(int index) {
-    return oc_grid.info.origin.position.x + (0.5 + static_cast<double>(colFromIndex(index)))*oc_grid.info.resolution;
+    return ocgrid->info.origin.position.x + (0.5 + static_cast<double>(colFromIndex(index)))*ocgrid->info.resolution;
 }
 
 double OcGrid::indexToY(int index) {
-    return oc_grid.info.origin.position.y + (0.5 + static_cast<double>(rowFromIndex(index)))*oc_grid.info.resolution;
+    return ocgrid->info.origin.position.y + (0.5 + static_cast<double>(rowFromIndex(index)))*ocgrid->info.resolution;
 }
 
 int OcGrid::posToIndex(double x, double y) {
-    int row = std::floor((x-oc_grid.info.origin.position.x)/oc_grid.info.resolution);
-    int col = std::floor((y-oc_grid.info.origin.position.y)/oc_grid.info.resolution);
+    int col = std::floor((x-ocgrid->info.origin.position.x)/ocgrid->info.resolution);
+    int row = std::floor((y-ocgrid->info.origin.position.y)/ocgrid->info.resolution);
     return indexFromRowCol(row, col);
 }
 

@@ -17,14 +17,14 @@
      * @param[out] success indicator of whether process was successful
     */
 bool PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid::Ptr ocgridPtr) {
-    /// iterates through data
-    for(unsigned i = 0; i < ocgridPtr->data.size(); i++) {
-        /// calculates the min and max x and y values using the index value, resolution and origin
-        double x_min = ocgridPtr->info.origin.position.x + (i%ocgridPtr->info.width)*ocgridPtr->info.resolution;
-        double x_max = x_min + ocgridPtr->info.resolution;
 
-        double y_min = ocgridPtr->info.origin.position.y + std::floor(i/ocgridPtr->info.width)*ocgridPtr->info.resolution;
-        double y_max = y_min + ocgridPtr->info.resolution;
+    OcGrid ocgrid(ocgridPtr);
+
+    int index;
+    /// iterates through data
+    for(auto p:pointcloudPtr->points) {
+        index = ocgrid.posToIndex(p.x, p.y);
+        if(ocgrid.inGrid(index)) ocgrid.ocgrid->data[index] = 100;
     }
 }
 

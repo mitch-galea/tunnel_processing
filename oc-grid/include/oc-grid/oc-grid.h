@@ -19,13 +19,14 @@ class OcGrid {
 private:
 
 public:
+    static nav_msgs::OccupancyGrid generateOcgrid(std::string map_file_path);
     // occupancy grid msg - data
-    nav_msgs::OccupancyGrid oc_grid;
+    nav_msgs::OccupancyGrid::Ptr ocgrid;
 
     // constructor from ros msg
-    explicit OcGrid(nav_msgs::OccupancyGrid oc_grid_in);
-    // constructor that uses map server image loader function and yaml file
-    explicit OcGrid(std::string map_file_path);
+    OcGrid(nav_msgs::OccupancyGrid::Ptr oc_grid_ptr);
+    // // constructor that uses map server image loader function and yaml file
+    // explicit OcGrid(std::string map_file_path);
 
     // exports map image
     void exportMapImage(cv::Mat &image);

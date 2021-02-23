@@ -10,13 +10,16 @@ TEST(OcGrid, FileConstructor)
 
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/turn_test.yaml");
-    OcGrid map(path);
 
-    ASSERT_EQ(map.oc_grid.info.height, 10);
-    ASSERT_EQ(map.oc_grid.info.width,  10);
-    ASSERT_TRUE(fabs(map.oc_grid.info.resolution - 0.2) < 0.000001);
-    ASSERT_DOUBLE_EQ(map.oc_grid.info.origin.position.x, -1.0);
-    ASSERT_DOUBLE_EQ(map.oc_grid.info.origin.position.y, -1.0);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
+
+    ASSERT_EQ(map.ocgrid->info.height, 10);
+    ASSERT_EQ(map.ocgrid->info.width,  10);
+    ASSERT_TRUE(fabs(map.ocgrid->info.resolution - 0.2) < 0.000001);
+    ASSERT_DOUBLE_EQ(map.ocgrid->info.origin.position.x, -1.0);
+    ASSERT_DOUBLE_EQ(map.ocgrid->info.origin.position.y, -1.0);
 
     std::vector<int> correct_data = {100,100,100,100,100,-1 ,0  ,0  ,0  ,0  ,
                                      100,100,100,100,100,0  ,0  ,0  ,0  ,0  ,
@@ -29,7 +32,7 @@ TEST(OcGrid, FileConstructor)
                                      100,100,100,100,100,100,100,100,100,100,
                                      100,100,100,100,100,100,100,100,100,100};
 
-    for(unsigned i = 0; i < map.oc_grid.data.size(); i++) ASSERT_EQ(static_cast<int>(map.oc_grid.data[i]), correct_data[i]);
+    for(unsigned i = 0; i < map.ocgrid->data.size(); i++) ASSERT_EQ(static_cast<int>(map.ocgrid->data[i]), correct_data[i]);
 }
 
 TEST(OcGrid, ImageExport)
@@ -37,7 +40,9 @@ TEST(OcGrid, ImageExport)
 
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
     cv::Mat image;
     map.exportMapImage(image);
 
@@ -57,7 +62,9 @@ TEST(OcGrid, ImageExport)
 TEST(OcGrid, inGrid) {
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
 
     ASSERT_TRUE(map.inGrid(4));
     ASSERT_TRUE(map.inGrid(1,1));
@@ -72,7 +79,9 @@ TEST(OcGrid, index_row_col_conversions)
 {
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
 
     ASSERT_EQ(map.indexFromRowCol(1,1), 4);
     ASSERT_EQ(map.rowFromIndex(4), 1);
@@ -82,7 +91,9 @@ TEST(OcGrid, index_row_col_conversions)
 TEST(OcGrid, getNeighbours) {
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
 
     std::vector<int> n_1 = map.getNeighbours(4, true);
     std::vector<int> n_2 = map.getNeighbours(0, false);
@@ -104,7 +115,9 @@ TEST(OcGrid, getNeighbours) {
 TEST(OcGrid, neighbours) {
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
 
     ASSERT_TRUE(map.neighbours(4,1));
     ASSERT_TRUE(map.neighbours(4,3));
@@ -144,7 +157,9 @@ TEST(OcGrid, neighbours) {
 TEST(OcGrid, directionIndex) {
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
 
     ASSERT_EQ(map.upIndex(4), 7);
     ASSERT_EQ(map.downIndex(4), 1);
@@ -160,7 +175,9 @@ TEST(OcGrid, directionIndex) {
 TEST(OcGrid, outerIndex) {
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
 
     std::vector<int> indexs = map.getOuterIndexs();
     std::vector<int> correct_n_1 = {0,1,2,5,8,7,6,3};
@@ -174,7 +191,9 @@ TEST(OcGrid, outerIndex) {
 TEST(OcGrid, transforms) {
     std::string path = ros::package::getPath("oc-grid");
     path.append("/maps/small_test.yaml");
-    OcGrid map(path);
+    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
+    *ocgrid = OcGrid::generateOcgrid(path);
+    OcGrid map(ocgrid);
 
     ASSERT_DOUBLE_EQ(map.indexToX(4), 2.6);
     ASSERT_DOUBLE_EQ(map.indexToX(0), 1.6);
