@@ -2,10 +2,11 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <oc-grid/oc-grid.h>
 #include <vector>
+#include <ros/package.h>
 
-#include "pointcloud-to-ocgrid/pointcloud-to-ocgrid.hpp"
+#include <ocgrid/ocgrid.hpp>
+#include <pointcloud-to-ocgrid/pointcloud-to-ocgrid.hpp>
 
 TEST(TESTSuite, PointcloudToOcgridTest)
 {
@@ -49,20 +50,27 @@ TEST(TESTSuite, PointcloudToOcgridTest)
     cloud->height = 1;
 
     /// Set up test input occupancy grid
-    nav_msgs::OccupancyGrid::Ptr ocgrid(new nav_msgs::OccupancyGrid);
-    ocgrid->info.width = 8;
-    ocgrid->info.height = 8;
-    ocgrid->info.resolution = 0.25;
-    ocgrid->info.origin.position.x = -0.5;
-    ocgrid->info.origin.position.y = -1.0;
-    ocgrid->data.resize(ocgrid->info.width*ocgrid->info.height);
+    // nav_msgs::OccupancyGrid ocgrid;
+    // ocgrid.info.width = 8;
+    // ocgrid.info.height = 8;
+    // ocgrid.info.resolution = 0.25;
+    // ocgrid.info.origin.position.x = -0.5;
+    // ocgrid.info.origin.position.y = -1.0;
+    // ocgrid.data.resize(ocgrid.info.width*ocgrid.info.height);
+
+    std::string path2 = ros::package::getPath("ocgrid");
+    path2.append("/maps/ray_trace_test.yaml");
+
+    nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path2);
 
     /// Declares converter object and converts pointcloud to ocgrid
     PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid);
 
     std::string path = "/home/mitchellgalea/testim.png";
-
-    OcGrid o(ocgrid);
+    cv::Mat im;
+    Ocgrid::exportMapImage(ocgrid, im);
+    cv::imwrite(path, im);
+    
 
     // Expected output
     const unsigned U = 0, O = 100;
@@ -76,10 +84,10 @@ TEST(TESTSuite, PointcloudToOcgridTest)
                                              O, U, U, U, U, O, O, U};
 
     // Tests
-    ASSERT_EQ(ocgrid->data.size(), 64);
+    ASSERT_EQ(ocgrid.data.size(), 64);
     for (unsigned i = 0; i < expected_output.size(); i++)
     {
-        ASSERT_EQ(ocgrid->data[i], expected_output[i]);
+        ASSERT_EQ(ocgrid.data[i], expected_output[i]);
     }
 }
 

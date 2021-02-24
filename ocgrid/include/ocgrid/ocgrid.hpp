@@ -156,6 +156,15 @@ namespace Ocgrid {
     int rightIndex(nav_msgs::OccupancyGrid &ocgrid, int index);
 
     /**
+     * Returns the indexs of the outer cells of the occupancy grid
+     *
+     * @param[in] ocgrid     Input occupancy grid
+     *                      
+     * @param[out] outerIndexs   Outer indexs of grid
+     */
+    std::vector<int> getOuterIndexs(nav_msgs::OccupancyGrid &ocgrid);
+
+    /**
      * Transforms from occupancy grid domain to global x position
      *
      * Returns the X position (meters) of the centre position of the cell,

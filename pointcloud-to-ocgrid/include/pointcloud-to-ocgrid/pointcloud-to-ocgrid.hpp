@@ -8,7 +8,8 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <nav_msgs/OccupancyGrid.h>
-#include "ocgrid/ocgrid.hpp"
+#include <algorithm>
+#include <ocgrid/ocgrid.hpp>
 
 /**
  * In this implementation only PXYZI point types (I being intensity) are supported, 
@@ -16,6 +17,13 @@
  */
 typedef pcl::PointXYZI PointType;
 typedef pcl::PointCloud<PointType> PointCloud;
+
+/// Unkown cell value
+const int UNKNOWN_CELL = 50;
+/// Occupied cell value
+const int OCCUPIED_CELL = 100;
+/// Uncoccupied cell value
+const int UNOCCUPIED_CELL = 0;
 
 /**
  * Represents a Pointcloud to Ocgrid Converter
@@ -37,13 +45,7 @@ namespace PointcloudToOcgrid {
      * @param[out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
      * @param[out] success indicator of whether process was successful
     */
-    bool convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid);
+    void convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid,
+                                    double xOrigin = 0.0, double yOrigin = 0.0);
 }
-
-
-/**
- * Initialisation: Laser Position (default: 0,0), Map 
- * Public function: convertPointCloudToOcgrid
- * 
- */
 

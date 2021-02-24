@@ -282,6 +282,41 @@ int Ocgrid::rightIndex(nav_msgs::OccupancyGrid &ocgrid, int index)
 }
 
 /**
+ * Returns the indexs of the outer cells of the occupancy grid
+ *
+ * @param[in] ocgrid     Input occupancy grid
+ *                      
+ * @param[out] outerIndexs   Outer indexs of grid
+ */
+std::vector<int> Ocgrid::getOuterIndexs(nav_msgs::OccupancyGrid &ocgrid) 
+{
+    std::vector<int> outerIndexs;
+    int i = 0;
+    //bottom
+    outerIndexs.push_back(i);
+    while(i < ocgrid.info.width - 1) {
+        i++;
+        outerIndexs.push_back(i);
+    }
+    //right
+    while(i < ocgrid.info.width*ocgrid.info.height-1) {
+        i = i+ocgrid.info.width;
+        outerIndexs.push_back(i);
+    }
+    //top
+    while(i > ocgrid.info.width*(ocgrid.info.height-1)) {
+        i--;
+        outerIndexs.push_back(i);
+    }
+    //left
+    while(i > ocgrid.info.width) {
+        i = i-ocgrid.info.width;
+        outerIndexs.push_back(i);
+    }
+    return outerIndexs;
+}
+
+/**
  * Transforms from occupancy grid domain to global x position
  *
  * Returns the X position (meters) of the centre position of the cell,

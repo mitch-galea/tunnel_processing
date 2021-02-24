@@ -10,7 +10,14 @@
 class PointcloudToOcgridNode
 {
 private:
+    /// ROS Nodehandle
     ros::NodeHandle nh_;
+    /// ROS Pointcloud subscriber
+    ros::Subscriber pcSub_;
+    /// ROS Occupancy Grid publisher
+    ros::Publisher ocgridPub_;
+
+    
 public:
     PointcloudToOcgridNode(ros::NodeHandle nh)
         :nh_(nh)
