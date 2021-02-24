@@ -3,8 +3,6 @@
  * Node for pointcloud-to-ocgrid conversion
  */
 
-#pragma once
-
 #include <ros/ros.h>
 
 #include "pointcloud-to-ocgrid/pointcloud-to-ocgrid.hpp"

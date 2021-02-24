@@ -8,7 +8,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <nav_msgs/OccupancyGrid.h>
-#include "oc-grid/oc-grid.h"
+#include "ocgrid/ocgrid.hpp"
 
 /**
  * In this implementation only PXYZI point types (I being intensity) are supported, 
@@ -34,10 +34,16 @@ namespace PointcloudToOcgrid {
      * for resolution, width, height and origin on Occupancy Grid
      * 
      * @param[in] pointcloudPtr  Pointer for input pointcloud
-     * @param[out] ocgridPtr Pointer for output pointcloud, also used for MapMetaData
+     * @param[out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
      * @param[out] success indicator of whether process was successful
     */
-    bool convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid::Ptr ocgridPtr);
+    bool convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid);
 }
 
+
+/**
+ * Initialisation: Laser Position (default: 0,0), Map 
+ * Public function: convertPointCloudToOcgrid
+ * 
+ */
 

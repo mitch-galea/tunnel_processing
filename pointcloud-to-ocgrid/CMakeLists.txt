@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf2
   tf2_ros
-  oc-grid
+  ocgrid
 )
 
 find_package(PCL 1.7 REQUIRED)

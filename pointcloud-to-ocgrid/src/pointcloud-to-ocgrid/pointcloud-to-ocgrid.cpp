@@ -13,18 +13,16 @@
      * for resolution, width, height and origin on Occupancy Grid
      * 
      * @param[in] pointcloudPtr  Pointer for input pointcloud
-     * @param[out] ocgridPtr Pointer for output pointcloud, also used for MapMetaData
+     * @param[out] ocgrid occupancy grid for output pointcloud, also used for MapMetaData
      * @param[out] success indicator of whether process was successful
     */
-bool PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid::Ptr ocgridPtr) {
-
-    OcGrid ocgrid(ocgridPtr);
-
+bool PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid ocgrid) 
+{
     int index;
     /// iterates through data
     for(auto p:pointcloudPtr->points) {
-        index = ocgrid.posToIndex(p.x, p.y);
-        if(ocgrid.inGrid(index)) ocgrid.ocgrid->data[index] = 100;
+        //index = ocgrid.posToIndex(p.x, p.y);
+        //if(ocgrid.inGrid(index)) ocgrid.ocgrid->data[index] = 100;
     }
 }
 
