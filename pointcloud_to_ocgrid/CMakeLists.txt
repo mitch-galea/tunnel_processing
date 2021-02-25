@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pointcloud-to-ocgrid)
+project(pointcloud_to_ocgrid)
 
 ## Compile as C++11
 add_compile_options(-std=c++11)
@@ -23,7 +23,7 @@ find_package(PCL 1.7 REQUIRED)
 ################################################
 
 generate_dynamic_reconfigure_options(
-        cfg/pointcloud-to-ocgrid.cfg
+        cfg/pointcloud_to_ocgrid_settings.cfg
 )
 
 ###################################
@@ -44,13 +44,13 @@ include_directories(
 
 ## Library 
 add_library(${PROJECT_NAME}
-  src/${PROJECT_NAME}/pointcloud-to-ocgrid.cpp
+  src/${PROJECT_NAME}/pointcloud_to_ocgrid.cpp
 )
 ## Library Dependencies
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Node Executable
-add_executable(${PROJECT_NAME}-node src/pointcloud-to-ocgrid-node.cpp)
+add_executable(${PROJECT_NAME}-node src/pointcloud_to_ocgrid_node.cpp)
 
 ## Node Dependencies
 add_dependencies(${PROJECT_NAME}-node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -66,7 +66,7 @@ target_link_libraries(${PROJECT_NAME}-node
 ## Testing ##
 #############
 
-catkin_add_gtest(${PROJECT_NAME}-test test/pointcloud-to-ocgrid-test.cpp)
+catkin_add_gtest(${PROJECT_NAME}-test test/pointcloud_to_ocgrid_test.cpp)
 target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(${PROJECT_NAME}-test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 

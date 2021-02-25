@@ -60,6 +60,32 @@ nav_msgs::OccupancyGrid Ocgrid::generateOcgrid(std::string mapFilePath)
 }
 
 /**
+ * Generates occupancy grid map from files
+ *
+ * Uses YAML and image map file to generate an occupancy grid
+ *
+ * @param[in] width     Width (cells) of the occupancy grid
+ * @param[in] height     Height (cells) of the occupancy grid
+ * @param[in] resolution     Resolution (m/cell) of the occupancy grid
+ * @param[in] xOrigin     X position of bottom left cell of the occupancy grid
+ * @param[in] yOrigin    Y position of bottom left cell of the occupancy grid
+ * @param[in] initValue     Initial value of all cells, default value in 0
+ *                      
+ * @param[out] ocgrid   The outputted occupancy grid map
+ */
+nav_msgs::OccupancyGrid Ocgrid::generateOcgrid(int width, int height, double resolution, double xOrigin, double yOrigin, int initValue) {
+    nav_msgs::OccupancyGrid ocgrid;
+    ocgrid.info.width = width;
+    ocgrid.info.height = height;
+    ocgrid.info.resolution = resolution;
+    ocgrid.info.origin.position.x = xOrigin;
+    ocgrid.info.origin.position.y = yOrigin;
+
+    ocgrid.data = std::vector<int8_t>(width*height, initValue);
+    return ocgrid;
+}
+
+/**
  * Exports an image of the occupancy grid map
  *
  * @param[in] ocgrid     Input occupancy grid

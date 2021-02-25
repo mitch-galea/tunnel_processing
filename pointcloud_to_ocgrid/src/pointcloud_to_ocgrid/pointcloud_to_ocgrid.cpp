@@ -3,7 +3,7 @@
  * Implementation file containing convertPointcloudToOcgrid function
  */
 
-#include "pointcloud-to-ocgrid/pointcloud-to-ocgrid.hpp"
+#include "pointcloud_to_ocgrid/pointcloud_to_ocgrid.hpp"
 
 /**
      * Coverts point cloud to occupancy grid map
@@ -19,8 +19,12 @@
 void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid,
                                                     double xOrigin, double yOrigin) 
 {
+    std::cout << "H: " << ocgrid.info.height << ", W: " << ocgrid.info.width << ", DS: " << ocgrid.data.size() << std::endl;
+
     /// sets all cells to unknown
     std::fill(ocgrid.data.begin(), ocgrid.data.end(), UNKNOWN_CELL);
+
+    ROS_INFO("FILLED");
 
     int index;
     /// iterates through data and sets any grid to occupied with points in them
@@ -28,6 +32,8 @@ void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr
         index = Ocgrid::posToIndex(ocgrid, p.x, p.y);
         if(Ocgrid::inGrid(ocgrid, index)) ocgrid.data[index] = 100;
     }
+
+    ROS_INFO("OCCUPIED MARKED");
 
     // Ray Tracing
     int originIndex = Ocgrid::posToIndex(ocgrid, xOrigin, yOrigin);
@@ -93,6 +99,8 @@ void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr
             else ocgrid.data[currentIndex] = UNOCCUPIED_CELL;
         }
     }
+
+    ROS_INFO("RAYS TRACED");
 }
 
 
