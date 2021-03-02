@@ -109,6 +109,18 @@ namespace Ocgrid {
     std::vector<int> getNeighbours(nav_msgs::OccupancyGrid &ocgrid, int index, bool checkDiagonals=false);
 
     /**
+     * Returns a grid of the 9 cells including the index cell of a cell, if on the
+     * border, outside cells will be marked -1 
+     *
+     * @param[in] ocgrid     Input occupancy grid
+     * @param[in] index     Index of cells to get neighbours
+     *                      
+     * @param[out] neighboursGrid   neighbour grid, return values of neighbours in correct position, border will be -1
+     */    
+    std::vector<int8_t> getNeighboursGrid(nav_msgs::OccupancyGrid &ocgrid, int index);
+
+
+    /**
      * Transforms row and col domain to index domain
      *
      * @param[in] ocgrid     Input occupancy grid
@@ -273,5 +285,17 @@ namespace Ocgrid {
      * 
      * @param[out] skeletonGrid grid which has been skeletonised, skeleton cells = 0, other = 100
      */ 
-    std::vector<int8_t> skeletoniseUnoccupied(nav_msgs::OccupancyGrid &ocgrid, bool diagonalInflation, bool diagonalSkeleton)
+    std::vector<int8_t> skeletoniseUnoccupied(nav_msgs::OccupancyGrid &ocgrid, bool diagonalInflation, bool diagonalSkeleton);
+
+    /**
+     * Skeletonises the input space forming a single cell thick skeleton
+     *
+     * @param[in] skeletonValue     value to be skeletonised
+     * @param[in] changeValue     value to change removed cells
+     * @param[in] diagonalBoundary     true = diagonal boudnary expansion, false = only vertical or horizontal boundary expansion        
+     * @param[in] ocgrid   Reference to ocgrid
+     * 
+     * @param[out] skeletonGrid grid which has been skeletonised, skeleton cells = 0, other = 100
+     */ 
+    std::vector<int8_t> skeletonise(nav_msgs::OccupancyGrid &ocgrid, int skeletonValue, int changeValue, bool diagonalBoundary);
 }
