@@ -40,6 +40,8 @@ private:
     double pointcloudZMin_;
     ///The upper bound of pointcloud z filtering
     double pointcloudZMax_;
+    ///Inflation for occupied cells
+    double inflation_;
 
     
 public:
@@ -55,7 +57,6 @@ public:
         /// initialises subscriber and publisher
         pcSub_ = nh_.subscribe<sensor_msgs::PointCloud2> (pcTopic, 1, &PointcloudToOcgridNode::pcCallback, this);
         ocgridPub_ = nh_.advertise<nav_msgs::OccupancyGrid> (ocgridTopic, 5);
-
 
         /// for debugging
         pcPub_ = nh_.advertise<PointCloud> ("/points/filtered", 100);
@@ -83,7 +84,7 @@ public:
 
         pcPub_.publish(*cloud);    
 
-        PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid_);
+        PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid_, inflation_);
 
         ocgridPub_.publish(ocgrid_);    
     }
@@ -92,10 +93,11 @@ public:
         /// sets ocgrid info
         ocgrid_ = Ocgrid::generateOcgrid(config.ocgridWidth, config.ocgridHeight, config.ocgridResolution,
                                         config.ocgridXOrigin, config.ocgridYOrigin, 0);
-        ocgrid_.header.frame_id = "map";
+        ocgrid_.header.frame_id = "velodyne";
         /// sets point cloud filter
         pointcloudZMin_ = config.pointcloudZMin;
         pointcloudZMax_ = config.pointcloudZMax;
+        inflation_ = config.inflation;
     }
 };
 

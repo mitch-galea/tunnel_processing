@@ -377,18 +377,160 @@ double Ocgrid::indexToY(nav_msgs::OccupancyGrid &ocgrid, int index)
 /**
  * Transforms from global domain to occupancy grid domain
  * 
- * Transforms a position from global domain to occupancy grid domain, 
- * does not check whether index is within grid
+ * Transforms a position from global domain to occupancy grid domain, checks if in grid
  *
  * @param[in] ocgrid     Input occupancy grid
  * @param[in] x     x position (meters)
  * @param[in] y     y position (meters)
  *                      
- * @param[out] index   Index of cell that contains position
+ * @param[out] index   Index of cell that contains position if in grid, else returns -1
  */
 int Ocgrid::posToIndex(nav_msgs::OccupancyGrid &ocgrid, double x, double y)
 {
     int col = std::floor((x - ocgrid.info.origin.position.x) / ocgrid.info.resolution);
     int row = std::floor((y - ocgrid.info.origin.position.y) / ocgrid.info.resolution);
-    return indexFromRowCol(ocgrid, row, col);
+
+    if(inGrid(ocgrid, row, col)) indexFromRowCol(ocgrid, row, col);
+    else return -1; 
+}
+
+/**
+ * Inflates occupied cells by a certain value
+ *
+ * @param[in] inflation     number of cells to inflate
+ * @param[in] diagonalInflation     true = inflate diagonally, false = inflate horizontally and vertically only
+ *                      
+ * @param[in,out] ocgrid   Reference to ocgrid
+ */
+void Ocgrid::inflate(nav_msgs::OccupancyGrid &ocgrid, int inflation, int inflationCell, bool diagonalInflation) {
+    for(unsigned iteration = 0; iteration < inflation; iteration++) {
+        std::vector<int> inflateIndexs;
+        for(unsigned i = 0; i < ocgrid.data.size(); i++) {
+            if(ocgrid.data[i] == inflationCell) {
+                std::vector<int> neighbours = getNeighbours(ocgrid, i, diagonalInflation);
+                inflateIndexs.insert(inflateIndexs.end(), neighbours.begin(), neighbours.end());
+            }
+        }
+        for(auto i: inflateIndexs) ocgrid.data[i] = inflationCell;
+    }
+}
+
+/**
+ * Sets all cells that are not unoccupied to occupied
+ *                   
+ * @param[in,out] ocgrid   Reference to ocgrid
+ */
+void Ocgrid::unknownToOccupied(nav_msgs::OccupancyGrid &ocgrid) {
+    for(auto && cell:ocgrid.data) if(static_cast<int>(cell) != UNOCCUPIED_CELL) cell = static_cast<int8_t>(OCCUPIED_CELL);
+}
+
+/**
+ * Inflates from occupied cells to unoccupied cells by gradient
+ * 
+ * Expects a occupancy grid of only occupied and unoccupied cells
+ *
+ * @param[in] diagonalInflation     true = inflate diagonally, false = inflate horizontally and vertically only            
+ * @param[in] ocgrid   Reference to ocgrid
+ * 
+ * @param[out] gradientskeletonGrid grid which has been inflated, occupied cells = 100, unoccupied cells = 0-100 based on proximity to occupied cells
+ */
+std::vector<int8_t> Ocgrid::gradientInflateGrid(nav_msgs::OccupancyGrid &ocgrid, bool diagonalInflation) {
+    std::vector<int8_t> gradientGrid = ocgrid.data;
+    int level = 100;
+    bool changed = true;
+    while(changed) {
+        level --;
+        changed = false;
+        // iterates through each square
+        for(int unsigned i = 0; i < gradientGrid.size(); i++) {
+            if(gradientGrid[i] == level + 1) {
+                std::vector<int> neighbours = getNeighbours(ocgrid, i, diagonalInflation);
+                for(auto n:neighbours) {
+                    if(inGrid(ocgrid,n)) {
+                        if(gradientGrid[n] == UNOCCUPIED_CELL){
+                            gradientGrid[n] = level;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    level++;
+    int delta = 100 - level;
+    for(auto && cell:gradientGrid) cell = (cell - level)*100/delta;
+    return gradientGrid;
+}
+
+/**
+ * Computes the clusters of inputted value cells, returns grid with clusters labelled that same value, cells of other values will be labelled 0
+ *
+ * @param[in] clusterValue     value to calculate clusters for        
+ * @param[in] ocgrid   Reference to ocgrid
+ * 
+ * @param[out] clusterGrid grid which has been clustered, cells of cluster value will be labelled by cluster, other cells will be 0
+ */ 
+std::vector<int8_t> Ocgrid::computeClusters(nav_msgs::OccupancyGrid &ocgrid, int clusterValue) {
+    std::vector<int8_t> clusterGrid = ocgrid.data;
+    int count = 0;
+    for(unsigned i = 0; i < ocgrid.data.size(); i++) {
+        if(clusterGrid[i] == 100) {
+            count++;
+            clusterGrid[i] = count;
+            std::queue<int> clusterQueue;
+            clusterQueue.push(i);
+            int currentI;
+            while (!clusterQueue.empty()) {
+                currentI = clusterQueue.front();
+                clusterQueue.pop();
+                std::vector<int> neighbours = getNeighbours(ocgrid, currentI, true);
+                for(auto n:neighbours) {
+                    if(clusterGrid[n] == 100) {
+                        clusterGrid[n] = count;
+                        clusterQueue.push(n);
+                    }
+                }
+            }
+        }
+    }
+    return clusterGrid;
+}
+
+/**
+ * Skeletonises the unoccupied space forming a single cell thick path
+ *
+ * @param[in] diagonalInflation     true = inflate occupied cells in a diagonal direction, false = do not inflate occupied cells in diagonal direction
+ * @param[in] diagonalSkeleton     true = diagonal connections are a path, false = connections can only be vertical or horizontal        
+ * @param[in] ocgrid   Reference to ocgrid
+ * 
+ * @param[out] skeletonGrid grid which has been skeletonised, skeleton cells = 0, other = 100
+ */ 
+std::vector<int8_t> Ocgrid::skeletoniseUnoccupied(nav_msgs::OccupancyGrid &ocgrid, bool diagonalInflation, bool diagonalSkeleton) {
+    std::vector<int8_t> skeletonGrid = ocgrid.data;
+    std::vector<int8_t> clusterGrid = computeClusters(ocgrid, OCCUPIED_CELL);
+    std::queue<int> toExpand;
+    for (unsigned i = 0; i < skeletonGrid.size(); i++) if (skeletonGrid[i] == OCCUPIED_CELL) toExpand.push(i);
+    while (!toExpand.empty()) {
+        int index = toExpand.front();
+        toExpand.pop();
+        std::vector<int> expNeighbours = getNeighbours(ocgrid, index, diagonalInflation);
+        for (auto expN:expNeighbours) {
+            if (skeletonGrid[expN] == UNOCCUPIED_CELL) {
+                bool cluster_hit = false;
+                std::vector<int> pathNeighbours = getNeighbours(ocgrid, expN, !diagonalSkeleton);
+                for (auto pathN:pathNeighbours) {
+                    if ((skeletonGrid[pathN] == OCCUPIED_CELL) && clusterGrid[pathN] != clusterGrid[index]) {
+                        cluster_hit = true;
+                        break;
+                    }
+                }
+                if (!cluster_hit) {
+                    skeletonGrid[expN] = OCCUPIED_CELL;
+                    clusterGrid[expN] = clusterGrid[index];
+                    toExpand.push(expN);
+                }
+            }
+        }
+    }
+    return skeletonGrid;
 }

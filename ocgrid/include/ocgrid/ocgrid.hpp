@@ -18,6 +18,14 @@
 #include <ros/ros.h>
 
 namespace Ocgrid {
+
+    /// Unkown cell value
+    const int UNKNOWN_CELL = 50;
+    /// Occupied cell value
+    const int OCCUPIED_CELL = 100;
+    /// Uncoccupied cell value
+    const int UNOCCUPIED_CELL = 0;
+
     /**
      * Generates occupancy grid map from files
      *
@@ -208,16 +216,62 @@ namespace Ocgrid {
     
     /**
      * Transforms from global domain to occupancy grid domain
-     * 
-     * Transforms a position from global domain to occupancy grid domain, 
-     * does not check whether index is within grid
+     *   
+     * Transforms a position from global domain to occupancy grid domain, checks if in grid
      *
      * @param[in] ocgrid     Input occupancy grid
      * @param[in] x     x position (meters)
      * @param[in] y     y position (meters)
      *                      
-     * @param[out] index   Index of cell that contains position
+     * @param[out] index   Index of cell that contains position if in grid, else returns -1
      */
     int posToIndex(nav_msgs::OccupancyGrid &ocgrid, double x, double y);
 
+    /**
+     * Inflates occupied cells by a certain value
+     *
+     * @param[in] inflation     number of cells to inflate
+     * @param[in] diagonalInflation     true = inflate diagonally, false = inflate horizontally and vertically only
+     *                      
+     * @param[in,out] ocgrid   Reference to ocgrid
+     */
+    void inflate(nav_msgs::OccupancyGrid &ocgrid, int inflation, int inflationCell, bool diagonalInflation = true);
+
+    /**
+     * Sets all cells that are not unoccupied to occupied
+     *                     
+     * @param[in,out] ocgrid   Reference to ocgrid
+     */
+    void unknownToOccupied(nav_msgs::OccupancyGrid &ocgrid);
+
+    /**
+     * Inflates from occupied cells to unoccupied cells by gradient
+     *
+     * @param[in] diagonalInflation     true = inflate diagonally, false = inflate horizontally and vertically only            
+     * @param[in] ocgrid   Reference to ocgrid
+     * 
+     * @param[out] gradientInflatedGrid grid which has been inflated, occupied cells = 100, unoccupied cells = 0-100 based on proximity to occupied cells
+     */
+    std::vector<int8_t> gradientInflateGrid(nav_msgs::OccupancyGrid &ocgrid, bool diagonalInflation);
+
+    /**
+     * Computes the clusters of inputted value cells, returns grid with clusters labelled that same value, cells of other values will be labelled 0
+     *
+     * @param[in] clusterValue     value to calculate clusters for        
+     * @param[in] ocgrid   Reference to ocgrid
+     * 
+     * @param[out] clusterGrid grid which has been clustered, cells of cluster value will be labelled by cluster, other cells will be 0
+     */ 
+    std::vector<int8_t> computeClusters(nav_msgs::OccupancyGrid &ocgrid, int clusterValue);
+
+    /**
+     * Skeletonises the unoccupied space forming a single cell thick path
+     *
+     * @param[in] diagonalInflation     true = inflate occupied cells in a diagonal direction, false = do not inflate occupied cells in diagonal direction
+     * @param[in] diagonalSkeleton     true = diagonal connections are a path, false = connections can only be vertical or horizontal        
+     * @param[in] ocgrid   Reference to ocgrid
+     * 
+     * @param[out] skeletonGrid grid which has been skeletonised, skeleton cells = 0, other = 100
+     */ 
+    std::vector<int8_t> skeletoniseUnoccupied(nav_msgs::OccupancyGrid &ocgrid, bool diagonalInflation, bool diagonalSkeleton)
 }

@@ -16,31 +16,25 @@
      * @param[out] ocgrid occupancy grid for output pointcloud, also used for MapMetaData
      * @param[out] success indicator of whether process was successful
     */
-void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid,
-                                                    double xOrigin, double yOrigin) 
+void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid, int inflation) 
 {
-    std::cout << "H: " << ocgrid.info.height << ", W: " << ocgrid.info.width << ", DS: " << ocgrid.data.size() << std::endl;
-
     /// sets all cells to unknown
-    std::fill(ocgrid.data.begin(), ocgrid.data.end(), UNKNOWN_CELL);
-
-    ROS_INFO("FILLED");
+    std::fill(ocgrid.data.begin(), ocgrid.data.end(), Ocgrid::UNKNOWN_CELL);
 
     int index;
     /// iterates through data and sets any grid to occupied with points in them
     for(auto p:pointcloudPtr->points) {
         index = Ocgrid::posToIndex(ocgrid, p.x, p.y);
-        if(Ocgrid::inGrid(ocgrid, index)) ocgrid.data[index] = 100;
+        if(Ocgrid::inGrid(ocgrid, index)) ocgrid.data[index] = Ocgrid::OCCUPIED_CELL;
     }
 
-    ROS_INFO("OCCUPIED MARKED");
-
     // Ray Tracing
+    double xOrigin = 0.0, yOrigin = 0.0;
     int originIndex = Ocgrid::posToIndex(ocgrid, xOrigin, yOrigin);
     xOrigin = Ocgrid::indexToX(ocgrid, originIndex);
     yOrigin = Ocgrid::indexToY(ocgrid, originIndex);
 
-    ocgrid.data[originIndex] = UNOCCUPIED_CELL;
+    ocgrid.data[originIndex] = Ocgrid::UNOCCUPIED_CELL;
 
     std::vector<int> outerIndexs = Ocgrid::getOuterIndexs(ocgrid);
 
@@ -95,12 +89,10 @@ void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr
                     currentIndex = Ocgrid::downIndex(ocgrid, currentIndex);
                 }
             }
-            if(ocgrid.data[currentIndex] == OCCUPIED_CELL) break;
-            else ocgrid.data[currentIndex] = UNOCCUPIED_CELL;
+            if(ocgrid.data[currentIndex] == Ocgrid::OCCUPIED_CELL) break;
+            else ocgrid.data[currentIndex] = Ocgrid::UNOCCUPIED_CELL;
         }
     }
-
-    ROS_INFO("RAYS TRACED");
 }
 
 
