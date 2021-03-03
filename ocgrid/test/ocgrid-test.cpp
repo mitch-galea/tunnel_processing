@@ -173,6 +173,31 @@ TEST(OcGrid, transforms) {
     
 }
 
+TEST(OcGrid, neighbourGrid) {
+    std::string path = ros::package::getPath("ocgrid");
+    path.append("/maps/small_test_copy.yaml");
+    nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
+
+    std::vector<int8_t> neighbourGrid = Ocgrid::getNeighboursGrid(ocgrid, 4);
+
+    for(auto val:neighbourGrid) std::cout << static_cast<int>(val) << std::endl;
+    
+}
+
+TEST(OcGrid, skeletonise) {
+    std::string path = ros::package::getPath("ocgrid");
+    path.append("/maps/skeleton.yaml");
+    nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
+
+    Ocgrid::skeletonise(ocgrid, 0, 100, false);
+
+    std::string imPath = "/home/mitchellgalea/skeleton.png";
+    cv::Mat im;
+    Ocgrid::exportMapImage(ocgrid, im);
+    cv::imwrite(imPath, im);
+    
+}
+
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char **argv){

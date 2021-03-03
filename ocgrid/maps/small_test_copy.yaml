@@ -1,0 +1,6 @@
+image: small_test_copy.png
+resolution: 1.0
+origin: [1.1, -0.5, 0.0]
+occupied_thresh: 0.6
+free_thresh: 0.2
+negate: 0
