@@ -28,6 +28,9 @@ void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr
         if(Ocgrid::inGrid(ocgrid, index)) ocgrid.data[index] = Ocgrid::OCCUPIED_CELL;
     }
 
+    Ocgrid::inflate(ocgrid, 2, Ocgrid::OCCUPIED_CELL, true);
+    Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNKNOWN_CELL, false);
+
     // Ray Tracing
     double xOrigin = 0.0, yOrigin = 0.0;
     int originIndex = Ocgrid::posToIndex(ocgrid, xOrigin, yOrigin);

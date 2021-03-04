@@ -189,7 +189,9 @@ TEST(OcGrid, skeletonise) {
     path.append("/maps/skeleton.yaml");
     nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
 
-    Ocgrid::skeletonise(ocgrid, 0, 100, false);
+    for(auto&& val:ocgrid.data) if(val == -1) val = Ocgrid::UNKNOWN_CELL;
+
+    Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNKNOWN_CELL, false);
 
     std::string imPath = "/home/mitchellgalea/skeleton.png";
     cv::Mat im;

@@ -567,14 +567,10 @@ std::vector<int8_t> Ocgrid::skeletoniseUnoccupied(nav_msgs::OccupancyGrid &ocgri
  * @param[in] skeletonValue     value to be skeletonised
  * @param[in] changeValue     value to change removed cells
  * @param[in] diagonalBoundary     true = diagonal boudnary expansion, false = only vertical or horizontal boundary expansion        
- * @param[in] ocgrid   Reference to ocgrid
- * 
- * @param[out] skeletonGrid grid which has been skeletonised, skeleton cells = 0, other = 100
+ * @param[in, out] ocgrid   Reference to ocgrid that will be skeletonised
  */ 
-std::vector<int8_t> Ocgrid::skeletonise(nav_msgs::OccupancyGrid &ocgrid, int skeletonValue, int changeValue, bool diagonalBoundary) {
+void Ocgrid::skeletonise(nav_msgs::OccupancyGrid &ocgrid, int skeletonValue, int changeValue, bool diagonalBoundary) {
     bool changed = true;
-    int imCount = 0;
-    std::string path = "/home/mitchellgalea/skeleton";
     while(changed) {
         changed = false;
         // gets current boundary cells
@@ -608,12 +604,10 @@ std::vector<int8_t> Ocgrid::skeletonise(nav_msgs::OccupancyGrid &ocgrid, int ske
             int clusterCount = 0;
             for(auto val:clusterGrid) if(val == 1) clusterCount++;
             // if equal changes cell
-            if(valCount == clusterCount) {
+            if(valCount == clusterCount && valCount > 1) {
                 ocgrid.data[i] = changeValue;
                 changed = true;
             } 
         }
     }
-    std::vector<int8_t> grid;
-    return grid;
 }

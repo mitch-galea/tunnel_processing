@@ -40,5 +40,13 @@ namespace PointcloudToOcgrid {
      * @param[out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
      */
     void convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid, int inflation);
+
+    void pointsToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid);
+
+    void inflateAndSkelotonise(nav_msgs::OccupancyGrid &ocgrid, int inflation);
+
+    void filterClusters(nav_msgs::OccupancyGrid &ocgrid, int minClusterSize);
+
+    void raytrace(nav_msgs::OccupancyGrid &ocgrid);
 }
 
