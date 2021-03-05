@@ -179,8 +179,6 @@ TEST(OcGrid, neighbourGrid) {
     nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
 
     std::vector<int8_t> neighbourGrid = Ocgrid::getNeighboursGrid(ocgrid, 4);
-
-    for(auto val:neighbourGrid) std::cout << static_cast<int>(val) << std::endl;
     
 }
 
@@ -191,9 +189,9 @@ TEST(OcGrid, skeletonise) {
 
     for(auto&& val:ocgrid.data) if(val == -1) val = Ocgrid::UNKNOWN_CELL;
 
-    Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNKNOWN_CELL, false);
+    Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNOCCUPIED_CELL, false);
 
-    std::string imPath = "/home/mitchellgalea/skeleton.png";
+    std::string imPath = "/home/mitchellgalea/catkin_ws/src/platypus_control/ocgrid/maps/skeletonS.png";
     cv::Mat im;
     Ocgrid::exportMapImage(ocgrid, im);
     cv::imwrite(imPath, im);

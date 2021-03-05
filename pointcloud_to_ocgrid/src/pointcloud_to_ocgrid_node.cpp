@@ -41,7 +41,9 @@ private:
     ///The upper bound of pointcloud z filtering
     double pointcloudZMax_;
     ///Inflation for occupied cells
-    double inflation_;
+    int inflation_;
+    ///Minimum cluster size for ocgrid
+    int minClusterSize_;
 
     
 public:
@@ -84,7 +86,7 @@ public:
 
         pcPub_.publish(*cloud);    
 
-        PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid_, inflation_);
+        PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid_, inflation_, minClusterSize_);
 
         ocgridPub_.publish(ocgrid_);    
     }
@@ -98,6 +100,7 @@ public:
         pointcloudZMin_ = config.pointcloudZMin;
         pointcloudZMax_ = config.pointcloudZMax;
         inflation_ = config.inflation;
+        minClusterSize_ = config.minClusterSize;
     }
 };
 
