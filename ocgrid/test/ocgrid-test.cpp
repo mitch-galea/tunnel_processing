@@ -182,14 +182,26 @@ TEST(OcGrid, neighbourGrid) {
     
 }
 
+TEST(OcGrid, skeletonise2) {
+    std::string path = ros::package::getPath("ocgrid");
+    path.append("/maps/skeleton.yaml");
+    nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
+
+    Ocgrid::skeletonise2(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNOCCUPIED_CELL);
+
+    std::string imPath = "/home/mitchellgalea/catkin_ws/src/platypus_control/ocgrid/maps/skeletonS2.png";
+    cv::Mat im;
+    Ocgrid::exportMapImage(ocgrid, im);
+    cv::imwrite(imPath, im);
+    
+}
+
 TEST(OcGrid, skeletonise) {
     std::string path = ros::package::getPath("ocgrid");
     path.append("/maps/skeleton.yaml");
     nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
 
-    //2for(auto&& val:ocgrid.data) if(val == -1) val = Ocgrid::UNKNOWN_CELL;
-
-    Ocgrid::skeletonise2(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNOCCUPIED_CELL);
+    Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNOCCUPIED_CELL);
 
     std::string imPath = "/home/mitchellgalea/catkin_ws/src/platypus_control/ocgrid/maps/skeletonS.png";
     cv::Mat im;

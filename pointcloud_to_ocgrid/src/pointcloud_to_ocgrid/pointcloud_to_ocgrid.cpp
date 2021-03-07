@@ -43,7 +43,7 @@ void PointcloudToOcgrid::convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr
     
     if(inflation > 0) {
         Ocgrid::inflate(ocgrid, inflation, Ocgrid::OCCUPIED_CELL, true);
-        //Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNKNOWN_CELL, false);
+        Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNKNOWN_CELL);
     }
 
 
@@ -165,7 +165,7 @@ void pointsToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgr
  */
 void inflateAndSkelotonise(nav_msgs::OccupancyGrid &ocgrid, int inflation) {
     Ocgrid::inflate(ocgrid, inflation, Ocgrid::OCCUPIED_CELL, true);
-    Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNKNOWN_CELL, false);
+    Ocgrid::skeletonise(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNKNOWN_CELL);
 }
 
 /**
