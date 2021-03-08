@@ -298,6 +298,4 @@ namespace Ocgrid {
      * @param[out] skeletonGrid grid which has been skeletonised, skeleton cells = 0, other = 100
      */ 
     void skeletonise(nav_msgs::OccupancyGrid &ocgrid, int skeletonValue, int changeValue);
-
-    void skeletonise2(nav_msgs::OccupancyGrid &ocgrid, int skeletonValue, int changeValue);
 }

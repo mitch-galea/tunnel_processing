@@ -182,20 +182,6 @@ TEST(OcGrid, neighbourGrid) {
     
 }
 
-TEST(OcGrid, skeletonise2) {
-    std::string path = ros::package::getPath("ocgrid");
-    path.append("/maps/skeleton.yaml");
-    nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
-
-    Ocgrid::skeletonise2(ocgrid, Ocgrid::OCCUPIED_CELL, Ocgrid::UNOCCUPIED_CELL);
-
-    std::string imPath = "/home/mitchellgalea/catkin_ws/src/platypus_control/ocgrid/maps/skeletonS2.png";
-    cv::Mat im;
-    Ocgrid::exportMapImage(ocgrid, im);
-    cv::imwrite(imPath, im);
-    
-}
-
 TEST(OcGrid, skeletonise) {
     std::string path = ros::package::getPath("ocgrid");
     path.append("/maps/skeleton.yaml");
@@ -210,6 +196,20 @@ TEST(OcGrid, skeletonise) {
     
 }
 
+TEST(OcGrid, skeletoniseCluster) {
+    std::string path = ros::package::getPath("ocgrid");
+    path.append("/maps/skeletonN.yaml");
+    nav_msgs::OccupancyGrid ocgrid = Ocgrid::generateOcgrid(path);
+
+    std::vector<int8_t> skeleton = Ocgrid::skeletoniseUnoccupied(ocgrid, false, true);
+    ocgrid.data = skeleton;
+
+    std::string imPath = "/home/mitchellgalea/catkin_ws/src/platypus_control/ocgrid/maps/skeletonSN.png";
+    cv::Mat im;
+    Ocgrid::exportMapImage(ocgrid, im);
+    cv::imwrite(imPath, im);
+    
+}
 
 // Run all the tests that were declared with TEST()
 int main(int argc, char **argv){

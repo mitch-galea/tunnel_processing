@@ -42,6 +42,8 @@ private:
     double pointcloudZMax_;
     ///Inflation for occupied cells
     int inflation_;
+    ///Boolean for skeletonisation
+    bool skeletonisation_;
     ///Minimum cluster size for ocgrid
     int minClusterSize_;
 
@@ -86,7 +88,7 @@ public:
 
         pcPub_.publish(*cloud);    
 
-        PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid_, inflation_, minClusterSize_);
+        PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid_, inflation_, skeletonisation_, minClusterSize_);
 
         ocgridPub_.publish(ocgrid_);    
     }
@@ -100,6 +102,7 @@ public:
         pointcloudZMin_ = config.pointcloudZMin;
         pointcloudZMax_ = config.pointcloudZMax;
         inflation_ = config.inflation;
+        skeletonisation_ = config.skeletonisation;
         minClusterSize_ = config.minClusterSize;
     }
 };

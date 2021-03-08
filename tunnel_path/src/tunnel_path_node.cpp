@@ -19,26 +19,25 @@ private:
     /// ROS Objects ///
     /// ROS Nodehandle
     ros::NodeHandle nh_;
-    /// ROS Pointcloud subscriber
-    //ros::Subscriber ocgridSub_;
+    /// ROS Occupancy Grid subscriber
+    ros::Subscriber ocgridSub_;
+    /// ROS GridCell publiser
+    ros::Publisher gridCellPub_;
 
     
 public:
     TunnelPathNode(ros::NodeHandle nh)
         :nh_(nh)
     {
-        // /// nodehandle for parameters
-        // ros::NodeHandle pn("~");
-        // /// strings for topics
-        // std::string pcTopic, ocgridTopic;
-        // pn.param<std::string>("pcTopic", pcTopic, "/velodyne_points");
-        // pn.param<std::string>("ocgridTopic", ocgridTopic, "/ocgrid");
-        // /// initialises subscriber and publisher
-        // pcSub_ = nh_.subscribe<sensor_msgs::PointCloud2> (pcTopic, 1, &PointcloudToOcgridNode::pcCallback, this);
-        // ocgridPub_ = nh_.advertise<nav_msgs::OccupancyGrid> (ocgridTopic, 5);
-
-        // /// for debugging
-        // pcPub_ = nh_.advertise<PointCloud> ("/points/filtered", 100);
+        /// nodehandle for parameters
+        ros::NodeHandle pn("~");
+        /// strings for topics
+        std::string ocgridTopic, gridCellTopic;
+        pn.param<std::string>("ocgridTopic", ocgridTopic, "/ocgrid");
+        pn.param<std::string>("gridCellTopic", gridCellTopic, "/path");
+        /// initialises subscriber and publisher
+        ocgridSub_ = nh_.subscribe<nav_msgs::OccupancyGrid> (ocgridTopic, 1, &TunnelPathNode::ocgridCallback, this);
+        gridCellPub_ = nh_.advertise<nav_msgs::GridCells> (gridCellTopic, 1);
 
         // /// Sets up dynamic reconfigure server
         // static dynamic_reconfigure::Server<pointcloud_to_ocgrid::settingsConfig> config_server;
@@ -48,25 +47,14 @@ public:
 
     }
 
-    // void pcCallback(const sensor_msgs::PointCloud2ConstPtr& pcMsg) {
-    //     /// declaration of pointcloud for processing
-    //     PointCloud::Ptr cloud (new PointCloud);
-    //     //ros msg to pcl object
-    //     pcl::fromROSMsg (*pcMsg, *cloud);
-
-    //     //z filter
-    //     pcl::PassThrough<PointType> zPassthroughFilter;
-    //     zPassthroughFilter.setInputCloud (cloud);
-    //     zPassthroughFilter.setFilterFieldName ("z");
-    //     zPassthroughFilter.setFilterLimits (pointcloudZMin_, pointcloudZMax_);
-    //     zPassthroughFilter.filter (*cloud);    
-
-    //     pcPub_.publish(*cloud);    
-
-    //     PointcloudToOcgrid::convertPointcloudToOcgrid(cloud, ocgrid_, inflation_, minClusterSize_);
-
-    //     ocgridPub_.publish(ocgrid_);    
-    // }
+    void ocgridCallback(const nav_msgs::OccupancyGridConstPtr& ocgridMsg) {
+        /// Computes path
+        nav_msgs::OccupancyGrid ocgrid = *ocgridMsg;
+        nav_msgs::GridCells gridCells = TunnelPath::computeTunnelPath(ocgrid);
+        gridCells.header.frame_id = "velodyne";
+        /// Published path
+        gridCellPub_.publish(gridCells);
+    }
 
     // void updateConfig(pointcloud_to_ocgrid::settingsConfig &config, uint32_t level) {
     //     /// sets ocgrid info

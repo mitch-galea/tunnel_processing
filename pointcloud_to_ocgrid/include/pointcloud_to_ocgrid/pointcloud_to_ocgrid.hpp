@@ -42,7 +42,7 @@ namespace PointcloudToOcgrid {
      * 
      * @param[out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
      */
-    void convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid, int inflation, int minClusterSize);
+    void convertPointcloudToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid, int inflation,  bool skeletonisation, int minClusterSize);
 
     /**
      * Coverts point cloud to occupancy grid map
@@ -58,13 +58,20 @@ namespace PointcloudToOcgrid {
     void pointsToOcgrid(PointCloud::Ptr pointcloudPtr, nav_msgs::OccupancyGrid &ocgrid);
 
     /**
-     * Inflates the occupancy grid and then skeletonises to produce reliable clusters of cells
+     * Inflates the occupancy grid to produce reliable clusters of cells
      * 
-     * @param[in] inflation  Amount of inflation on occupied cells prior to skeletonisation
+     * @param[in] inflation  Amount of inflation on occupied cells
      * 
      * @param[in,out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
      */
-    void inflateAndSkelotonise(nav_msgs::OccupancyGrid &ocgrid, int inflation);
+    void inflate(nav_msgs::OccupancyGrid &ocgrid, int inflation);
+
+    /**
+     * Skeletonises the occupied space
+     * 
+     * @param[in,out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
+     */
+    void skelotonise(nav_msgs::OccupancyGrid &ocgrid);
 
     /**
      * Filters out clusters of occupied cells less than a certain size 

@@ -6,6 +6,8 @@
 #pragma once
 
 #include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/GridCells.h>
+#include <geometry_msgs/Point.h>
 #include <algorithm>
 #include <map>
 #include <ocgrid/ocgrid.hpp>
@@ -27,11 +29,10 @@ namespace TunnelPath {
      * for resolution, width, height and origin on Occupancy Grid, then options are to inflate and skeletonise the map to generate reliable clusters
      * then to remove small clusters, this is to manage noise and small obstacles such as stalactites
      * 
-     * @param[in] pointcloudPtr  Pointer for input pointcloud
-     * @param[in] inflation  Amount of inflation on occupied cells prior to skeletonisation, -1 input means inflation and skeletonisation wont occur
-     * @param[in] minClusterSize  Minimum amount of cells for clusters, any clusters smaller will be removed, -1 value means cluster removal wont occur
+     * @param[in] 
      * 
-     * @param[out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
+     * @param[in, out] ocgrid   Occupany Grid for output pointcloud, also used for MapMetaData
      */
+    nav_msgs::GridCells computeTunnelPath(nav_msgs::OccupancyGrid &ocgrid);
 }
 
